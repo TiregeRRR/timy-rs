@@ -42,6 +42,8 @@ enum Command {
     Rest,
     #[command(description = "show current status.")]
     Status,
+    #[command(description = "reset working time.")]
+    Reset,
 }
 
 #[tokio::main]
@@ -69,16 +71,14 @@ fn schema() -> UpdateHandler<Box<dyn std::error::Error + Send + Sync + 'static>>
                 target_hours,
                 cur_hours
             }]
-            .branch(case![Command::Work])
-            .endpoint(work),
+            .branch(case![Command::Work].endpoint(work)),
         )
         .branch(
             case![State::Rest {
                 target_hours,
                 cur_hours
             }]
-            .branch(case![Command::Status])
-            .endpoint(rest_status),
+            .branch(case![Command::Status].endpoint(rest_status)),
         )
         .branch(
             case![State::Work {
@@ -86,8 +86,7 @@ fn schema() -> UpdateHandler<Box<dyn std::error::Error + Send + Sync + 'static>>
                 cur_hours,
                 work_start,
             }]
-            .branch(case![Command::Rest])
-            .endpoint(rest),
+            .branch(case![Command::Rest].endpoint(rest)),
         )
         .branch(
             case![State::Work {
@@ -95,8 +94,7 @@ fn schema() -> UpdateHandler<Box<dyn std::error::Error + Send + Sync + 'static>>
                 cur_hours,
                 work_start,
             }]
-            .branch(case![Command::Status])
-            .endpoint(work_status),
+            .branch(case![Command::Status].endpoint(work_status)),
         );
 
     let message_handler = Update::filter_message()
